@@ -166,6 +166,6 @@ const Router = {
  * @param {Type}
  * @return {Type}
  */
-export default {
+export {
   Controller, Crypto, Facade, Mail, Router
 }
