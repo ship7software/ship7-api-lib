@@ -220,6 +220,45 @@ const Middleware = {
   },
   Perfil: (req, res, next) => {
     res.status(200).send(req.user)
+  },
+  Error: function(businessResolvers) {
+    return (err, req, res, next) => {
+      const status = err.errors || err.name === 'MongoError' ? 400 : 500;
+      let content = {}
+
+      if (err.errors) {
+        const messages = [];
+        let collectionName = err._message.replace(' validation failed', '');
+        let business = null;
+        business = ((businessResolvers || {})[collectionName] || {});
+
+        collectionName = business.name || collectionName;
+        business.properties = business.properties || {};
+
+        for (const key in err.errors) {
+          const prop = err.errors[key];
+          const pathName = business.properties[prop.path] || prop.path;
+
+          if (prop.kind === 'unique') {
+            messages.push(`Já existe registro com '${pathName}' igual à '${prop.value}'`)
+          } else if (prop.kind === 'required') {
+            messages.push(`'${pathName}' é obrigatório`)
+          } else {
+            messages.push(prop.message)
+          }
+        }
+
+        content = { messages }
+      } else {
+        content = { message: err.message }
+      }
+
+      res.status(status).json(content);
+
+      if (process.env.NODE_ENV !==  'test') {
+        console.log(err);
+      }
+    }
   }
 }
 
