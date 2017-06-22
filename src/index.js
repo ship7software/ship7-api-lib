@@ -1,6 +1,7 @@
-const crypto = require('crypto');
-const elasticApi = require('elastic-email');
-const ExpressRouter = require('express').Router;
+import crypto from 'crypto'
+import elasticApi from 'elastic-email'
+import express from 'express'
+const ExpressRouter = express.Router;
 const algorithm = 'aes-256-ctr';
 const password = 'asdh23879asd';
 
