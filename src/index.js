@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import elasticApi from 'elastic-email'
 import express from 'express'
 import jwt from 'jsonwebtoken'
+import _ from 'lodash'
 const ExpressRouter = express.Router;
 const algorithm = 'aes-256-ctr';
 const password = 'asdh23879asd';
