@@ -200,10 +200,9 @@ const Middleware = {
               login: creds[0],
               password: creds[1]
             };
-
+            req.token = tokenParts[1];
+            req.user = user;
             if (user.login === 'superuser' && user.password === 'sup&ru53r5&cr3t') {
-              req.token = tokenParts[1];
-              req.user = user;
               return next();
             }
             if (options.basicValidator) {
