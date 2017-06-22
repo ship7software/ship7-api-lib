@@ -1,12 +1,19 @@
+var Controller = require('./lib/controller.js');
+var Facade = require('./lib/facade.js');
+var Crypto = require('./lib/crypto.js');
+var Error = require('./lib/error.js');
+var Router = require('./lib/router.js');
+var Mail = require('./lib/mail.js');
+
 'use strict';
 module.exports = {
-	Controller: require('./lib/controller.js'),
-	Facade: require('./lib/facade.js'),
-	Crypto: require('./lib/crypto.js'),
-	Error: require('./lib/error.js'),
-	Router: require('./lib/router.js'),
-	Mail: require('./lib/mail.js'),
+	Controller,
+	Facade,
+	Crypto,
+	Error,
+	Router,
+	Mail,
 	Test: {
-		Rest: require('./lib/test/rest.js')
+		Rest
 	}
 };
