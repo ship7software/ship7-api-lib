@@ -170,7 +170,7 @@ const Middleware = {
       options.whiteList = options.whiteList || [];
 
       let isInWhiteList = req.originalUrl === '/'
-      isInWhiteList = isInWhiteList || _(whiteList).some(obj =>
+      isInWhiteList = isInWhiteList || _(options.whiteList).some(obj =>
       (obj.method === '*' || obj.method === req.method) && (obj.path === '*' || req.originalUrl.indexOf(obj.path) !== -1))
 
       if (!isInWhiteList) {
