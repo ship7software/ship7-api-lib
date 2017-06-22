@@ -3,6 +3,8 @@ import elasticApi from 'elastic-email'
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
+import request from 'request'
+import url from 'url'
 const ExpressRouter = express.Router;
 const algorithm = 'aes-256-ctr';
 const password = 'asdh23879asd';
@@ -262,10 +264,47 @@ const Middleware = {
   }
 }
 
+class RestApi {
+  constructor(baseUrl, auth) {
+    this.baseUrl = baseUrl
+    this.auth = auth
+  }
+
+  get(conditions) {
+    const options = {
+      method: "GET",
+      baseUrl: this.baseUrl,
+      url: "/",
+      qs: conditions,
+      json: true
+    }
+    request(options, function(err, res, body) {
+      if (err) throw err
+      return body
+    });
+  }
+}
+
+class UserApi extends RestApi {}
+class ApplicationApi extends RestApi {}
+class OrganizationApi extends RestApi {}
+class ContextApi extends RestApi {}
+
+class ApiClient {
+  constructor(baseUrl, auth) {
+    this.baseUrl = baseUrl
+    this.auth = auth
+    this.user = new UserApi(url.resolve(baseUrl, '/user'), auth)
+    this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth)
+    this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth)
+    this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth)
+  }
+}
+
 /**
  * @param {Type}
  * @return {Type}
  */
 export {
-  Controller, Crypto, Facade, Mail, Router, Middleware
+  Controller, Crypto, Facade, Mail, Router, Middleware, ApiClient
 }
