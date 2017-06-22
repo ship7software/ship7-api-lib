@@ -270,7 +270,7 @@ class RestApi {
     this.auth = auth
   }
 
-  get(conditions) {
+  get(conditions, cb) {
     const options = {
       method: "GET",
       baseUrl: this.baseUrl,
@@ -279,8 +279,7 @@ class RestApi {
       json: true
     }
     request(options, function(err, res, body) {
-      if (err) throw err
-      return body
+      cb(err, body)
     });
   }
 }
