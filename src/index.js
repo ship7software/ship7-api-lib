@@ -58,8 +58,8 @@ class Controller {
 
 }
 
-class Crypto {
-  encrypt(text) {
+const Crypto = {
+  encrypt: function (text) {
     const cipher = crypto.createCipher(algorithm, password);
     let crypted = cipher.update(text, 'utf8', 'hex');
     crypted += cipher.final('hex');
@@ -137,8 +137,8 @@ class Mail {
   }
 }
 
-class Router {
-  rest (controller, preIdRouterFuncion) {
+const Router = {
+  rest: function (controller, preIdRouterFuncion) {
     let router = new ExpressRouter();
 
     router.route('/')
