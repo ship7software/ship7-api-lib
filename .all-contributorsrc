@@ -1,0 +1,23 @@
+{
+  "projectName": "ship-7-api-lib",
+  "projectOwner": "ship7software",
+  "files": [
+    "readme.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "ship7software",
+      "name": "ship7software",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/22868432?v=3",
+      "profile": "https://github.com/ship7software",
+      "contributions": [
+        "code",
+        "doc",
+        "infra",
+        "test"
+      ]
+    }
+  ]
+}

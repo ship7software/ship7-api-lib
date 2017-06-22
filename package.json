@@ -1,0 +1,80 @@
+{
+  "name": "ship-7-api-lib",
+  "version": "1.0.0",
+  "description": "Biblioteca de funções para serem usadas nos projetos Ship7",
+  "license": "MIT",
+  "author": "ship7software <ship7software@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ship7software/ship-7-api-lib.git"
+  },
+  "homepage": "https://github.com/ship7software/ship-7-api-lib#readme",
+  "bugs": "https://github.com/ship7software/ship-7-api-lib/issues",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "nps",
+    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
+    "precommit": "lint-staged",
+    "postinstall": "nps flow.typed",
+    "test": "nps test"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier --trailing-comma es5 --single-quote --write",
+      "eslint --fix && flow",
+      "jest --findRelatedTests",
+      "git add"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    }
+  },
+  "keywords": [
+    "🐰"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "all-contributors-cli": "^4.3.0",
+    "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.5.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.23.0",
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0",
+    "eslint": "3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-flowtype": "^2.33.0",
+    "eslint-plugin-import": "2.3.0",
+    "eslint-plugin-jest": "^20.0.3",
+    "flow-bin": "^0.47.0",
+    "flow-typed": "^2.1.2",
+    "husky": "^0.13.2",
+    "jest-cli": "^20.0.4",
+    "lint-staged": "^3.4.2",
+    "nps": "^5.2.0",
+    "nps-utils": "^1.1.2",
+    "opt-cli": "^1.5.1",
+    "prettier": "^1.3.1",
+    "semantic-release": "^6.3.6",
+    "validate-commit-msg": "^2.12.1"
+  }
+}

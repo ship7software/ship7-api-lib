@@ -1,0 +1,13 @@
+# Project Roadmap
+
+This is where we'll define a few things about the library's goals.
+
+We haven't filled this out yet though. Care to help? See [`contributing.md`][contributing-link]
+
+## Want to do
+
+## Might do
+
+## Won't do
+
+[contributing-link]: https://github.com/ship7software/ship-7-api-lib/blob/master/contributing.md
