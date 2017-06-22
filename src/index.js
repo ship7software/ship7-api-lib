@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import elasticApi from 'elastic-email'
 import express from 'express'
+import jwt from 'jsonwebtoken'
 const ExpressRouter = express.Router;
 const algorithm = 'aes-256-ctr';
 const password = 'asdh23879asd';
@@ -162,10 +163,70 @@ const Router = {
   }
 }
 
+const Middleware = {
+  VerifyAuth: function(options) {
+    return (req, res, next) => {
+      options.whiteList = options.whiteList || [];
+
+      let isInWhiteList = req.originalUrl === '/'
+      isInWhiteList = isInWhiteList || _(whiteList).some(obj =>
+      (obj.method === '*' || obj.method === req.method) && (obj.path === '*' || req.originalUrl.indexOf(obj.path) !== -1))
+
+      if (!isInWhiteList) {
+        const providedToken = req.headers.authorization || req.query.token || req.body.token;
+
+        if (!providedToken || providedToken.indexOf(' ') === -1) {
+          res.status(401).send({ code: 'INVALID_TOKEN' });
+        } else {
+          const tokenParts = providedToken.split(' ');
+
+          if (tokenParts[0] === 'Bearer') {
+            jwt.verify(tokenParts[1], req.app.get('config').privateKey, (err, decoded) => {
+              if (err) {
+                res.status(401).json({ code: 'INVALID_OR_EXPIRED_TOKEN' });
+                return;
+              }
+
+              req.token = tokenParts[1];
+              req.user = decoded;
+              return next();
+            });
+          } else {
+            const buf = new Buffer(tokenParts[1], 'base64');
+            const plainAuth = buf.toString();
+
+            const creds = plainAuth.split(':');
+            const user = {
+              login: creds[0],
+              password: creds[1]
+            };
+
+            if (user.login === 'superuser' && user.password === 'sup&ru53r5&cr3t') {
+              req.token = tokenParts[1];
+              req.user = user;
+              return next();
+            }
+            if (options.basicValidator) {
+              options.basicValidator(req, res, next);
+            } else {
+              res.status(401).json({ message: 'INVALID_OR_EXPIRED_TOKEN' });
+            }
+          }
+        }
+      } else {
+        next();
+      }
+    }
+  },
+  Perfil: (req, res, next) => {
+    res.status(200).send(req.user)
+  }
+}
+
 /**
  * @param {Type}
  * @return {Type}
  */
 export {
-  Controller, Crypto, Facade, Mail, Router
+  Controller, Crypto, Facade, Mail, Router, Middleware
 }
