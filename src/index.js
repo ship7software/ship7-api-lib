@@ -264,22 +264,58 @@ const Middleware = {
   }
 }
 
-class RestApi {
+class RestApiBase {
   constructor(baseUrl, auth) {
     this.baseUrl = baseUrl
     this.auth = auth
+    this.defaultOptions = {
+      baseUrl: this.baseUrl,
+      json: true,
+      headers: {
+        Authorization: this.auth
+      }
+    }
+  }  
+}
+
+class RestApi extends RestApiBase {
+  constructor(baseUrl, auth) {
+    this.baseUrl = baseUrl
+    this.auth = auth
+    this.defaultOptions = {
+      baseUrl: this.baseUrl,
+      json: true,
+      headers: {
+        Authorization: this.auth
+      }
+    }
   }
 
   get(conditions, cb) {
-    const options = {
-      method: "GET",
-      baseUrl: this.baseUrl,
-      url: "/",
-      qs: conditions,
-      json: true
+    if (!cb) {
+      cb = conditions
+      conditions = null
     }
+
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.url = "/"
+    options.qs =  conditions
+
     request(options, function(err, res, body) {
-      cb(err, body)
+      cb(err, res)
+    });
+  }
+
+  getById(id, cb) {
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.url = "/" + id
+
+    request(options, function(err, res, body) {
+      cb(err, res)
     });
   }
 }
@@ -288,15 +324,27 @@ class UserApi extends RestApi {}
 class ApplicationApi extends RestApi {}
 class OrganizationApi extends RestApi {}
 class ContextApi extends RestApi {}
+class AuthApi extends RestApiBase {
+  verifyToken(token) {
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.headers.Authorization = "Bearer " + token
+    options.url = '/me'
+
+    request(options, function(err, res, body) {
+      cb(err, res)
+    });
+  }
+}
 
 class ApiClient {
   constructor(baseUrl, auth) {
-    this.baseUrl = baseUrl
-    this.auth = auth
     this.user = new UserApi(url.resolve(baseUrl, '/user'), auth)
     this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth)
     this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth)
     this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth)
+    this.auth = new AuthApi(baseUrl, auth)
   }
 }
 
