@@ -184,14 +184,15 @@ const Router = {
 }
 
 class RestApiBase {
-  constructor(baseUrl, auth) {
+  constructor(baseUrl, auth, application) {
     this.baseUrl = baseUrl
     this.auth = auth
     this.defaultOptions = {
       baseUrl: this.baseUrl,
       json: true,
       headers: {
-        Authorization: this.auth
+        Authorization: this.auth,
+        'X-Application': application
       }
     }
   }  
@@ -246,12 +247,12 @@ class AuthApi extends RestApiBase {
 }
 
 class ApiClient {
-  constructor(baseUrl, auth) {
-    this.user = new UserApi(url.resolve(baseUrl, '/user'), auth)
-    this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth)
-    this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth)
-    this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth)
-    this.auth = new AuthApi(baseUrl, auth)
+  constructor(baseUrl, auth, application) {
+    this.user = new UserApi(url.resolve(baseUrl, '/user'), auth, application)
+    this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth, application)
+    this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth, application)
+    this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth, application)
+    this.auth = new AuthApi(baseUrl, auth, application)
   }
 }
 
@@ -284,7 +285,7 @@ const Middleware = {
               return next();
             });
           } else if (tokenParts[0] === 'Bearer' && options.authApi) {
-            new AuthApi(options.authApi).verifyToken(tokenParts[1], (error, response) => {
+            new AuthApi(options.authApi, '', application).verifyToken(tokenParts[1], (error, response) => {
               if (response.statusCode.toString() !== "200") {
                 return res.status(response.statusCode).json(response.body);
               } else {
