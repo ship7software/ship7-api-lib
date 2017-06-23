@@ -279,18 +279,6 @@ class RestApiBase {
 }
 
 class RestApi extends RestApiBase {
-  constructor(baseUrl, auth) {
-    this.baseUrl = baseUrl
-    this.auth = auth
-    this.defaultOptions = {
-      baseUrl: this.baseUrl,
-      json: true,
-      headers: {
-        Authorization: this.auth
-      }
-    }
-  }
-
   get(conditions, cb) {
     if (!cb) {
       cb = conditions
