@@ -36,12 +36,23 @@ class Controller {
   }
 
   create(req, res, next) {
+    const user = req.user || {};
+    user.login = user.login || user.email || 'SYS';
+
+    req.body._user = user.login
+    req.body._action = 'CREATE'
     this.facade.create(req.body)
     .then(doc => res.status(201).json(doc))
     .catch(err => next(err));
   }
 
   update(req, res, next) {
+    const user = req.user || {};
+    user.login = user.login || user.email || 'SYS';
+
+    req.body._user = user.login
+    req.body._action = 'UPDATE'
+
     const conditions = { _id: req.params.id };
 
     this.facade.update(conditions, req.body)
@@ -53,6 +64,12 @@ class Controller {
   }
 
   remove(req, res, next) {
+    const user = req.user || {};
+    user.login = user.login || user.email || 'SYS';
+
+    req.body._user = user.login
+    req.body._action = 'DELETE'
+
     this.facade.remove(req.params.id)
     .then((doc) => {
       if (!doc) { return res.status(404).end(); }
@@ -166,6 +183,78 @@ const Router = {
   }
 }
 
+class RestApiBase {
+  constructor(baseUrl, auth) {
+    this.baseUrl = baseUrl
+    this.auth = auth
+    this.defaultOptions = {
+      baseUrl: this.baseUrl,
+      json: true,
+      headers: {
+        Authorization: this.auth
+      }
+    }
+  }  
+}
+
+class RestApi extends RestApiBase {
+  get(conditions, cb) {
+    if (!cb) {
+      cb = conditions
+      conditions = null
+    }
+
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.url = "/"
+    options.qs =  conditions
+
+    request(options, function(err, res, body) {
+      cb(err, res)
+    });
+  }
+
+  getById(id, cb) {
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.url = "/" + id
+
+    request(options, function(err, res, body) {
+      cb(err, res)
+    });
+  }
+}
+
+class UserApi extends RestApi {}
+class ApplicationApi extends RestApi {}
+class OrganizationApi extends RestApi {}
+class ContextApi extends RestApi {}
+class AuthApi extends RestApiBase {
+  verifyToken(token, cb) {
+    const options = _.cloneDeep(this.defaultOptions)
+
+    options.method = "GET"
+    options.headers.Authorization = "Bearer " + token
+    options.url = '/me'
+
+    request(options, function(err, res, body) {
+      cb(err, res)
+    });
+  }
+}
+
+class ApiClient {
+  constructor(baseUrl, auth) {
+    this.user = new UserApi(url.resolve(baseUrl, '/user'), auth)
+    this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth)
+    this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth)
+    this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth)
+    this.auth = new AuthApi(baseUrl, auth)
+  }
+}
+
 const Middleware = {
   VerifyAuth: function(options) {
     return (req, res, next) => {
@@ -183,7 +272,7 @@ const Middleware = {
         } else {
           const tokenParts = providedToken.split(' ');
 
-          if (tokenParts[0] === 'Bearer') {
+          if (tokenParts[0] === 'Bearer' && !options.authApi) {
             jwt.verify(tokenParts[1], req.app.get('config').privateKey, (err, decoded) => {
               if (err) {
                 res.status(401).json({ code: 'INVALID_OR_EXPIRED_TOKEN' });
@@ -194,6 +283,16 @@ const Middleware = {
               req.user = decoded;
               return next();
             });
+          } else if (tokenParts[0] === 'Bearer' && options.authApi) {
+            new AuthApi(options.authApi).verifyToken(tokenParts[1], (error, response) => {
+              if (response.statusCode.toString() !== "200") {
+                return res.status(response.statusCode).json(response.body);
+              } else {
+                req.token = tokenParts[1];
+                req.user = response.body;
+                return next();
+              }
+            })
           } else {
             const buf = new Buffer(tokenParts[1], 'base64');
             const plainAuth = buf.toString();
@@ -261,78 +360,6 @@ const Middleware = {
         console.log(err);
       }
     }
-  }
-}
-
-class RestApiBase {
-  constructor(baseUrl, auth) {
-    this.baseUrl = baseUrl
-    this.auth = auth
-    this.defaultOptions = {
-      baseUrl: this.baseUrl,
-      json: true,
-      headers: {
-        Authorization: this.auth
-      }
-    }
-  }  
-}
-
-class RestApi extends RestApiBase {
-  get(conditions, cb) {
-    if (!cb) {
-      cb = conditions
-      conditions = null
-    }
-
-    const options = _.cloneDeep(this.defaultOptions)
-
-    options.method = "GET"
-    options.url = "/"
-    options.qs =  conditions
-
-    request(options, function(err, res, body) {
-      cb(err, res)
-    });
-  }
-
-  getById(id, cb) {
-    const options = _.cloneDeep(this.defaultOptions)
-
-    options.method = "GET"
-    options.url = "/" + id
-
-    request(options, function(err, res, body) {
-      cb(err, res)
-    });
-  }
-}
-
-class UserApi extends RestApi {}
-class ApplicationApi extends RestApi {}
-class OrganizationApi extends RestApi {}
-class ContextApi extends RestApi {}
-class AuthApi extends RestApiBase {
-  verifyToken(token) {
-    const options = _.cloneDeep(this.defaultOptions)
-
-    options.method = "GET"
-    options.headers.Authorization = "Bearer " + token
-    options.url = '/me'
-
-    request(options, function(err, res, body) {
-      cb(err, res)
-    });
-  }
-}
-
-class ApiClient {
-  constructor(baseUrl, auth) {
-    this.user = new UserApi(url.resolve(baseUrl, '/user'), auth)
-    this.application = new ApplicationApi(url.resolve(baseUrl, '/application'), auth)
-    this.organization = new OrganizationApi(url.resolve(baseUrl, '/organization'), auth)
-    this.context = new ContextApi(url.resolve(baseUrl, '/context'), auth)
-    this.auth = new AuthApi(baseUrl, auth)
   }
 }
 
