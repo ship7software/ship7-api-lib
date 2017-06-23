@@ -1,6 +1,6 @@
 {
   "name": "ship7-api-lib",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Biblioteca de funções para serem usadas nos projetos Ship7",
   "main": "dist/index.js",
   "files": [
