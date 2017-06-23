@@ -285,7 +285,7 @@ const Middleware = {
               return next();
             });
           } else if (tokenParts[0] === 'Bearer' && options.authApi) {
-            new AuthApi(options.authApi, '', application).verifyToken(tokenParts[1], (error, response) => {
+            new AuthApi(options.authApi, '', options.application).verifyToken(tokenParts[1], (error, response) => {
               if (response.statusCode.toString() !== "200") {
                 return res.status(response.statusCode).json(response.body);
               } else {
