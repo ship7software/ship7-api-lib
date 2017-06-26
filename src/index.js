@@ -16,8 +16,6 @@ class Controller {
 
 
   find(req, res, next) {
-    if(this.facade.Schema.collection.collectionName != 'empresas')
-      req.query.empresaId = new ObjectId(req.usuario.empresaId._id)
     let query = req.query
     const sort = query.sort
     const limit = query.limit
