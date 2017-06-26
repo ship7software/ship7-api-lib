@@ -118,6 +118,10 @@ class Facade {
     return schema.save();
   }
 
+  count(query) {
+    return this.Schema.count(query).exec()
+  }
+
   update(conditions, update) {
     return this.Schema
     .update(conditions, update, { new: true })
