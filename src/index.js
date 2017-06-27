@@ -266,10 +266,8 @@ class OrganizationApi extends RestApi {}
 class ContextApi extends RestApi {}
 class AuthApi extends RestApiBase {
   verifyToken(cb) {
-    const options = _.cloneDeep(this.defaultOptions)
-
-    options.method = "GET"
-    options.url = '/me'
+    this.defaultOptions.method = "GET"
+    this.defaultOptions.url = '/me'
 
     request(options, function(err, res, body) {
       cb(err, res)
