@@ -265,11 +265,10 @@ class ApplicationApi extends RestApi {}
 class OrganizationApi extends RestApi {}
 class ContextApi extends RestApi {}
 class AuthApi extends RestApiBase {
-  verifyToken(token, cb) {
+  verifyToken(cb) {
     const options = _.cloneDeep(this.defaultOptions)
 
     options.method = "GET"
-    options.headers.Authorization = "Bearer " + token
     options.url = '/me'
 
     request(options, function(err, res, body) {
@@ -317,7 +316,7 @@ const Middleware = {
               return next();
             });
           } else if (tokenParts[0] === 'Bearer' && options.authApi) {
-            new AuthApi(options.authApi, '', options.application).verifyToken(tokenParts[1], (error, response) => {
+            new AuthApi(options.authApi, providedToken, options.application).verifyToken((error, response) => {
               if (response.statusCode.toString() !== "200") {
                 return res.status(response.statusCode).json(response.body);
               } else {
